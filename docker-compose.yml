@@ -1,0 +1,42 @@
+version: "2"
+services:
+  mysql:
+    container_name: mysql
+    build: ./mysql
+    image: hiroshiyoneda/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: secret2q3
+    volumes:
+      - db:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      app_net:
+        ipv4_address: 172.16.0.5
+
+  ubuntu:
+    container_name: ubuntu
+    privileged: true
+    command: /sbin/init
+    build: ./ubuntu
+    image: hiroshiyoneda/ubuntu
+    ports:
+      - "80:80"
+      - "22:22"
+    volumes:
+      - /Users/yonedahiroshi/Desktop/git/test_laravel:/opt/circleci
+    depends_on:
+      - mysql    
+
+volumes:
+  db:
+
+# ubuntuコンテナからmysqlコンテナへの接続ipはgetewayのipを利用する
+networks:
+  app_net:
+    driver: bridge
+    ipam:
+     driver: default
+     config:
+       - subnet: 172.16.0.0/24
+         gateway: 172.16.0.1
